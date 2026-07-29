@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 type ModelId = "whole" | "b1" | "f1" | "f2";
+type StyleId = "original" | "wood";
 
 type ModelDefinition = {
   id: ModelId;
@@ -10,9 +11,15 @@ type ModelDefinition = {
   label: string;
   loadingLabel: string;
   src: string;
+  woodSrc: string;
   orbit: string;
   size: string;
 };
+
+const STYLES: { id: StyleId; label: string; detail: string }[] = [
+  { id: "original", label: "原始", detail: "规划模型色" },
+  { id: "wood", label: "原木装修", detail: "简约原木风" },
+];
 
 const MODELS: ModelDefinition[] = [
   {
@@ -21,6 +28,7 @@ const MODELS: ModelDefinition[] = [
     label: "整栋",
     loadingLabel: "整栋",
     src: "/models/whole-house.glb",
+    woodSrc: "/models/whole-house-wood.glb",
     orbit: "35deg 68deg auto",
     size: "三层叠合",
   },
@@ -30,6 +38,7 @@ const MODELS: ModelDefinition[] = [
     label: "地下室",
     loadingLabel: "地下室",
     src: "/models/basement.glb",
+    woodSrc: "/models/basement-wood.glb",
     orbit: "25deg 52deg auto",
     size: "10.20 × 9.30 m · 层高 2.70 m",
   },
@@ -39,6 +48,7 @@ const MODELS: ModelDefinition[] = [
     label: "一楼",
     loadingLabel: "一楼",
     src: "/models/ground-floor.glb",
+    woodSrc: "/models/ground-floor-wood.glb",
     orbit: "25deg 52deg auto",
     size: "10.34 × 8.88 m · 层高 3.00 m",
   },
@@ -48,6 +58,7 @@ const MODELS: ModelDefinition[] = [
     label: "二楼",
     loadingLabel: "二楼",
     src: "/models/second-floor.glb",
+    woodSrc: "/models/second-floor-wood.glb",
     orbit: "25deg 52deg auto",
     size: "10.34 × 9.36 m · 层高 3.00 m",
   },
@@ -62,6 +73,7 @@ type ViewerElement = HTMLElement & {
 
 export function HouseViewer() {
   const [activeId, setActiveId] = useState<ModelId>("whole");
+  const [style, setStyle] = useState<StyleId>("original");
   const [moduleReady, setModuleReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -79,6 +91,11 @@ export function HouseViewer() {
     () => MODELS.find((model) => model.id === activeId) ?? MODELS[0],
     [activeId],
   );
+  const activeStyle = useMemo(
+    () => STYLES.find((item) => item.id === style) ?? STYLES[0],
+    [style],
+  );
+  const activeSrc = style === "wood" ? active.woodSrc : active.src;
 
   useEffect(() => {
     let mounted = true;
@@ -128,7 +145,7 @@ export function HouseViewer() {
     };
     // resetView intentionally uses the current active model.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moduleReady, active.id, reloadKey]);
+  }, [moduleReady, active.id, style, reloadKey]);
 
   useEffect(() => {
     if (loading || failed) {
@@ -156,6 +173,18 @@ export function HouseViewer() {
     setProgress(0);
     setFailed(false);
     setAutoRotate(false);
+  }
+
+  function selectStyle(id: StyleId) {
+    if (id === style) {
+      return;
+    }
+    setStyle(id);
+    setLoading(true);
+    setProgress(0);
+    setFailed(false);
+    setAutoRotate(false);
+    setToast(id === "wood" ? "已切换为简约原木装修" : "已切换为原始模型色");
   }
 
   function resetView() {
@@ -203,7 +232,7 @@ export function HouseViewer() {
   async function sharePage() {
     const shareData = {
       title: "我们的新家 · 3D 户型",
-      text: "打开后可以拖动旋转、双指放大缩小，也可以逐层查看。",
+      text: "打开后可以拖动旋转、双指放大缩小、逐层查看，还能一键切换简约原木装修效果。",
       url: window.location.href,
     };
 
@@ -238,10 +267,10 @@ export function HouseViewer() {
     ref: (element: ViewerElement | null) => {
       viewerRef.current = element;
     },
-    key: `${active.id}-${reloadKey}`,
-    src: `${active.src}?v=${reloadKey}`,
+    key: `${active.id}-${style}-${reloadKey}`,
+    src: `${activeSrc}?v=${reloadKey}`,
     poster: "/house-preview.png",
-    alt: `${active.label}三维住宅模型`,
+    alt: `${active.label}${activeStyle.detail}三维住宅模型`,
     "camera-controls": "",
     "touch-action": "none",
     "interaction-prompt": "auto",
@@ -264,7 +293,7 @@ export function HouseViewer() {
   }
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" data-style={style}>
       <header className="topbar">
         <div className="brand-mark" aria-hidden="true">
           <span />
@@ -290,20 +319,38 @@ export function HouseViewer() {
         aria-label="住宅三维模型查看器"
       >
         <div className="viewer-heading">
-          <div>
+          <div className="viewer-title-card">
             <strong>{active.label}</strong>
-            <span>{active.size}</span>
+            <span>
+              {active.size} · {activeStyle.detail}
+            </span>
           </div>
-          {immersive && (
-            <button
-              className="close-immersive"
-              type="button"
-              onClick={toggleFullscreen}
-              aria-label="退出全屏"
-            >
-              退出
-            </button>
-          )}
+          <div className="viewer-heading-actions">
+            <div className="style-switch" role="group" aria-label="切换装修风格">
+              {STYLES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={style === item.id ? "is-selected" : ""}
+                  aria-pressed={style === item.id}
+                  onClick={() => selectStyle(item.id)}
+                >
+                  <span className={`style-swatch style-swatch--${item.id}`} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            {immersive && (
+              <button
+                className="close-immersive"
+                type="button"
+                onClick={toggleFullscreen}
+                aria-label="退出全屏"
+              >
+                退出
+              </button>
+            )}
+          </div>
         </div>
 
         {React.createElement("model-viewer", viewerProps)}
@@ -313,7 +360,9 @@ export function HouseViewer() {
             <div className="loading-house" aria-hidden="true">
               <span />
             </div>
-            <strong>正在加载{active.loadingLabel}模型…</strong>
+            <strong>
+              正在加载{active.loadingLabel}·{activeStyle.detail}…
+            </strong>
             <div
               className="progress-track"
               role="progressbar"
@@ -399,7 +448,7 @@ export function HouseViewer() {
         <aside className="help-card" aria-label="操作说明">
           <strong>怎么查看</strong>
           <p>
-            在房子上单指拖动可以旋转，双指张合可以缩放。点击下方楼层按钮可单独查看地下室、一楼和二楼。
+            在房子上单指拖动可以旋转，双指张合可以缩放。点击模型右上方的“原木装修”，可一键查看暖白墙面、浅橡木地面与米色布艺效果；下方按钮可切换楼层。
           </p>
         </aside>
       )}

@@ -6,8 +6,22 @@
     <meta name="theme-color" content="#ece8df" />
     <meta
       name="description"
-      content="无需安装软件，直接在手机浏览器里旋转、缩放并逐层查看住宅模型。"
+      content="无需安装软件，直接在手机浏览器里旋转、缩放、逐层查看，并一键切换简约原木装修效果。"
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content="我们的新家 · 3D 户型" />
+    <meta
+      property="og:description"
+      content="拖动查看三层住宅，并一键切换简约原木装修效果。"
+    />
+    <meta
+      property="og:image"
+      content="https://yym64212243-design.github.io/xinjia-3d-home/og.png"
+    />
+    <meta property="og:image:width" content="1659" />
+    <meta property="og:image:height" content="948" />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>我们的新家 · 3D 户型</title>
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./model-viewer.min.js"></script>
@@ -34,11 +48,26 @@
 
       <section class="viewer-shell" id="viewer-shell" aria-label="住宅三维模型查看器">
         <div class="viewer-heading">
-          <div>
+          <div class="viewer-title-card">
             <strong id="viewer-title">整栋</strong>
-            <span id="viewer-size">三层叠合</span>
+            <span id="viewer-size">三层叠合 · 规划模型色</span>
           </div>
-          <button class="exit-button" id="exit-button" type="button">退出</button>
+          <div class="viewer-heading-actions">
+            <div class="style-switch" role="group" aria-label="切换装修风格">
+              <button
+                class="is-selected"
+                type="button"
+                data-style="original"
+                aria-pressed="true"
+              >
+                <span class="style-swatch style-swatch--original"></span>原始
+              </button>
+              <button type="button" data-style="wood" aria-pressed="false">
+                <span class="style-swatch style-swatch--wood"></span>原木装修
+              </button>
+            </div>
+            <button class="exit-button" id="exit-button" type="button">退出</button>
+          </div>
         </div>
 
         <model-viewer
@@ -135,7 +164,7 @@
       <aside class="help-card" id="help-card" hidden>
         <strong>怎么查看</strong>
         <p>
-          在房子上单指拖动可以旋转，双指张合可以缩放。点击下方楼层按钮可单独查看地下室、一楼和二楼。
+          在房子上单指拖动可以旋转，双指张合可以缩放。点击模型右上方的“原木装修”，可一键查看暖白墙面、浅橡木地面与米色布艺效果；下方按钮可切换楼层。
         </p>
       </aside>
 

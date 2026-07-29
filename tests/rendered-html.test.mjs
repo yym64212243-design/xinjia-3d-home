@@ -1,11 +1,6 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
+import { access, readFile, stat } from "node:fs/promises";
 import test from "node:test";
-
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
 
 async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -28,64 +23,73 @@ async function render() {
   );
 }
 
-test("server-renders the starter loading skeleton", async () => {
+test("server renders the finished 3D home viewer", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
-  );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
+  assert.match(html, /我们的新家/);
+  assert.match(html, /简约原木/);
+  assert.match(html, /切换装修风格/);
+  assert.doesNotMatch(html, /codex-preview|Building your site|Starter Project/i);
 });
 
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
+test("both React and static viewers wire all floor and style variants", async () => {
+  const [component, index, viewer] = await Promise.all([
+    readFile(new URL("../app/HouseViewer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../docs/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../docs/viewer.js", import.meta.url), "utf8"),
   ]);
 
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
+  for (const model of [
+    "whole-house",
+    "basement",
+    "ground-floor",
+    "second-floor",
+  ]) {
+    assert.match(component, new RegExp(`${model}\\.glb`));
+    assert.match(component, new RegExp(`${model}-wood\\.glb`));
+    assert.match(viewer, new RegExp(`${model}\\.glb`));
+    assert.match(viewer, new RegExp(`${model}-wood\\.glb`));
+  }
 
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
+  assert.match(index, /data-style="original"/);
+  assert.match(index, /data-style="wood"/);
+  assert.match(index, /原木装修/);
+  assert.match(component, /aria-label="切换装修风格"/);
+  assert.match(viewer, /function chooseStyle/);
+});
 
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
+test("public and static model assets are present and non-empty", async () => {
+  for (const directory of ["public/models", "docs/models"]) {
+    for (const model of [
+      "whole-house.glb",
+      "whole-house-wood.glb",
+      "basement.glb",
+      "basement-wood.glb",
+      "ground-floor.glb",
+      "ground-floor-wood.glb",
+      "second-floor.glb",
+      "second-floor-wood.glb",
+    ]) {
+      const url = new URL(`../${directory}/${model}`, import.meta.url);
+      await access(url);
+      assert.ok((await stat(url)).size > 500_000, `${directory}/${model} too small`);
+    }
+  }
 
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+  await access(new URL("../public/og.png", import.meta.url));
+  await access(new URL("../docs/og.png", import.meta.url));
+});
+
+test("static public site contains no private filesystem or local URLs", async () => {
+  const [index, viewer] = await Promise.all([
+    readFile(new URL("../docs/index.html", import.meta.url), "utf8"),
+    readFile(new URL("../docs/viewer.js", import.meta.url), "utf8"),
+  ]);
+  const source = `${index}\n${viewer}`;
+
+  assert.doesNotMatch(source, /localhost|127\.0\.0\.1|file:\/\/|\/Users\//i);
+  assert.doesNotMatch(source, /\.blend\b|Blender/i);
 });
