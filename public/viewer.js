@@ -248,7 +248,7 @@ function chooseScene(id) {
   activeScene = id;
   loadingScreen.hidden = false;
   loadingScene.textContent = currentScene().name;
-  viewer.loadScene(id);
+  viewer.loadScene(id, 0, currentScene().yaw, 92);
 }
 
 function showToast(message) {

@@ -141,7 +141,7 @@
       "id": "master",
       "name": "主卧",
       "floor": "F2",
-      "yaw": 88,
+      "yaw": 118,
       "hotspots": [
         {
           "target": "guest",
@@ -163,7 +163,7 @@
       "id": "guest",
       "name": "客卧",
       "floor": "F2",
-      "yaw": -92,
+      "yaw": 118,
       "hotspots": [
         {
           "target": "master",
