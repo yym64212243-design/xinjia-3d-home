@@ -1,0 +1,251 @@
+{
+  "version": 3,
+  "format": "equirectangular",
+  "defaultStyle": "modern_wood",
+  "defaultTime": "noon",
+  "defaultScene": "living",
+  "styles": [
+    {
+      "id": "modern_wood",
+      "name": "现代原木",
+      "tagline": "浅橡木 · 暖白 · 亚麻",
+      "swatches": [
+        "#EEE9E0",
+        "#B9824B",
+        "#2C302E"
+      ]
+    },
+    {
+      "id": "new_chinese",
+      "name": "新中式",
+      "tagline": "胡桃木 · 米灰 · 青铜",
+      "swatches": [
+        "#E7E0D5",
+        "#6B4934",
+        "#24221F"
+      ]
+    },
+    {
+      "id": "cream_wabi",
+      "name": "奶油侘寂",
+      "tagline": "灰泥 · 奶油 · 漂白木",
+      "swatches": [
+        "#E9E0D2",
+        "#C1A783",
+        "#675D52"
+      ]
+    },
+    {
+      "id": "italian_minimal",
+      "name": "意式极简",
+      "tagline": "深胡桃 · 烟灰 · 皮革",
+      "swatches": [
+        "#D7D1C8",
+        "#5B4336",
+        "#17191A"
+      ]
+    },
+    {
+      "id": "modern_luxury",
+      "name": "现代轻奢",
+      "tagline": "浅石材 · 焦糖 · 香槟金",
+      "swatches": [
+        "#E5DED4",
+        "#A77D5B",
+        "#493A32"
+      ]
+    }
+  ],
+  "times": [
+    {
+      "id": "morning",
+      "name": "清晨"
+    },
+    {
+      "id": "noon",
+      "name": "中午"
+    },
+    {
+      "id": "night",
+      "name": "夜晚"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "living",
+      "name": "客厅",
+      "floor": "F1",
+      "yaw": -18,
+      "hotspots": [
+        {
+          "target": "dining",
+          "pitch": -4,
+          "yaw": -92,
+          "label": "去餐厅"
+        },
+        {
+          "target": "entry",
+          "pitch": -3,
+          "yaw": 132,
+          "label": "去玄关"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/living.png",
+      "thumbnail": "./ai-panoramas/{style}/living.png"
+    },
+    {
+      "id": "dining",
+      "name": "餐厅",
+      "floor": "F1",
+      "yaw": -88,
+      "hotspots": [
+        {
+          "target": "living",
+          "pitch": -4,
+          "yaw": 87,
+          "label": "去客厅"
+        },
+        {
+          "target": "tea",
+          "pitch": -6,
+          "yaw": 166,
+          "label": "去地下室品茶区"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/dining.png",
+      "thumbnail": "./ai-panoramas/{style}/dining.png"
+    },
+    {
+      "id": "entry",
+      "name": "玄关",
+      "floor": "F1",
+      "yaw": -168,
+      "hotspots": [
+        {
+          "target": "living",
+          "pitch": -4,
+          "yaw": -160,
+          "label": "去客厅"
+        },
+        {
+          "target": "master",
+          "pitch": -5,
+          "yaw": 86,
+          "label": "去二楼主卧"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/entry.png",
+      "thumbnail": "./ai-panoramas/{style}/entry.png"
+    },
+    {
+      "id": "master",
+      "name": "主卧",
+      "floor": "F2",
+      "yaw": 88,
+      "hotspots": [
+        {
+          "target": "guest",
+          "pitch": -5,
+          "yaw": -94,
+          "label": "去客卧"
+        },
+        {
+          "target": "bathroom",
+          "pitch": -4,
+          "yaw": 162,
+          "label": "去主卫"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/master.png",
+      "thumbnail": "./ai-panoramas/{style}/master.png"
+    },
+    {
+      "id": "guest",
+      "name": "客卧",
+      "floor": "F2",
+      "yaw": -92,
+      "hotspots": [
+        {
+          "target": "master",
+          "pitch": -5,
+          "yaw": 88,
+          "label": "去主卧"
+        },
+        {
+          "target": "second",
+          "pitch": -5,
+          "yaw": -92,
+          "label": "去次卧"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/guest.png",
+      "thumbnail": "./ai-panoramas/{style}/guest.png"
+    },
+    {
+      "id": "second",
+      "name": "次卧",
+      "floor": "F2",
+      "yaw": -92,
+      "hotspots": [
+        {
+          "target": "guest",
+          "pitch": -5,
+          "yaw": 89,
+          "label": "去客卧"
+        },
+        {
+          "target": "bathroom",
+          "pitch": -4,
+          "yaw": 165,
+          "label": "去卫生间"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/second.png",
+      "thumbnail": "./ai-panoramas/{style}/second.png"
+    },
+    {
+      "id": "bathroom",
+      "name": "卫生间",
+      "floor": "F2",
+      "yaw": 176,
+      "hotspots": [
+        {
+          "target": "master",
+          "pitch": -5,
+          "yaw": -8,
+          "label": "去主卧"
+        },
+        {
+          "target": "second",
+          "pitch": -5,
+          "yaw": -96,
+          "label": "去次卧"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/bathroom.png",
+      "thumbnail": "./ai-panoramas/{style}/bathroom.png"
+    },
+    {
+      "id": "tea",
+      "name": "品茶区",
+      "floor": "B1",
+      "yaw": -92,
+      "hotspots": [
+        {
+          "target": "dining",
+          "pitch": -5,
+          "yaw": 172,
+          "label": "回到一楼餐厅"
+        },
+        {
+          "target": "living",
+          "pitch": -5,
+          "yaw": 96,
+          "label": "去一楼客厅"
+        }
+      ],
+      "panorama": "./ai-panoramas/{style}/tea.png",
+      "thumbnail": "./ai-panoramas/{style}/tea.png"
+    }
+  ]
+}
